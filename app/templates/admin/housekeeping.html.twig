@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %}Housekeeping{% endblock %}
+{% block content %}
+<h2>Housekeeping</h2>
+
+{% for message in messages %}<p>{{ message }}</p>{% endfor %}
+{% for problem in problems %}<p class="problem">{{ problem }}</p>{% endfor %}
+
+<p class="note">Old rows are cleared out as the site is used, at most every {{ interval_minutes }} minutes, after a
+  request's response has been sent.</p>
+
+<h3>Last run</h3>
+{% if last %}
+  <p>{{ last.at|date('Y-m-d H:i:s') }}</p>
+  <table class="list">
+    {% for task, label in labels %}<tr><td>{{ label }}</td><td>{{ last.removed[task] ?? 0 }}</td></tr>{% endfor %}
+  </table>
+{% else %}
+  <p>Not run yet.</p>
+{% endif %}
+<form method="post" action="housekeeping.php">
+  {{ csrf_field() }}<button type="submit" name="action" value="run">Run now</button>
+</form>
+
+<h3>Fights nothing keeps</h3>
+<p class="note">A finished fight is kept while it's in a team's history (the last 25, retained, underdog or
+  overkill) or an admin has flagged it. Once it's none of those, it can be removed after this many days from when it
+  started &ndash; for good, and its replay link stops working. Up to {{ fights_per_run }} go per run. Blank keeps
+  them for good.</p>
+<form method="post" action="housekeeping.php">
+  {{ csrf_field() }}
+  Remove after <input name="fight_days" value="{{ fight_days }}" size="5"> days
+  <button type="submit" name="action" value="settings">Save</button>
+</form>
+{% if fight_days is not null %}
+  <p>{{ fights_due }} fight{{ fights_due == 1 ? '' : 's' }} due for removal now.</p>
+{% else %}
+  <p>Off: fights are kept for good.</p>
+{% endif %}
+
+<p><a href="index.php">Back</a></p>
+{% endblock %}

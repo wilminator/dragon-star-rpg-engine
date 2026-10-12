@@ -1,0 +1,19 @@
+/* The hub (app.php, javascript/hub.js): the party on the left of the
+   800x580 stage, the menu always visible on the right. */
+div.screen.hubscreen {visibility:visible}
+div.hubparty       {position:absolute; left:8px; top:8px; width:572px; height:530px; overflow:hidden}
+nav.hubmenu        {position:absolute; left:592px; top:8px; width:200px}
+div.hubstatus      {position:absolute; left:8px; top:546px; width:784px; height:26px; overflow:hidden; font-size:11pt}
+div.hubteams       {margin:0px 0px 4px 0px; font-size:12pt}
+div.huballiance    {margin:0px 0px 4px 0px; font-size:11pt; color:#a0a0e0}
+div.hubgroup       {display:flex; gap:2px; margin:4px 0px; min-height:150px; border-top:1px dashed #303060}
+div.hubhero        {position:relative; width:108px; height:144px; border:2px solid #6060a0; cursor:pointer; font-size:10pt; text-align:center; overflow:hidden}
+div.hubhero-highlighted {border-color:white}
+div.hubhero-held   {border-color:#c0c000; background:rgb(0,64,96)}
+img.hubheropic     {width:64px; height:64px; margin-top:2px}
+div.hubheroname    {font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+div.hubheroline    {white-space:nowrap}
+div.hubarrows      {position:absolute; left:0px; right:0px; bottom:0px; display:flex; justify-content:space-around; background:black}
+div.hubarrows button {background:black; color:white; border:1px solid #6060a0; padding:0px 4px; cursor:pointer}
+/* A fight, over the whole stage (its own page, rpg.php, in a frame). */
+iframe.hubfight    {position:absolute; left:0px; top:0px; width:804px; height:584px; border:0px; z-index:1000; background:black}

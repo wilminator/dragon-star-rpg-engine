@@ -1,0 +1,41 @@
+html			{background-color:black; color:white}
+div.screen		{
+    position:absolute; 
+    top:0px; 
+    left:0px; 
+    background-position:top left; 
+    background-repeat:no-repeat; 
+    width:800px; 
+    height:580px; 
+    max-width:800px; 
+    max-height:580px; 
+    font:normal 14pt courier,monospace; 
+    color:white; 
+    overflow:hidden; 
+    border:2px solid white; 
+    visibility:hidden}
+
+div.msg	    	{position:absolute; top:  0px; left:700px; height:32px; width:100px; z-Index:255}
+
+div.blood	 	{position:absolute; top:  0px; left:-16px; height:16px; width: 16px; visibility:hidden; z-Index:230}
+div.damage 		{position:absolute; top:  0px; left:-200px; height:16px; width: 160px; visibility:hidden; z-Index:231; font:24pt "Comic Relief",serif,courier bold; text-align:center}
+
+div.submit      {position:absolute; top:532px; left:730px; z-Index:240}
+div.settingsbutton {position:absolute; top:532px; left:650px; z-Index:240}
+div.settingsbutton button {height:24px; width:72px}
+input.commit    {position:absolute; top:0px; left:0px; height:24px; width:70px}
+
+div.cancel      {position:absolute; top:408px; left:0px; z-Index:240; visibility:hidden}
+input.cancel    {position:absolute; top:0px; left:0px; height:32px; width:100px}
+
+
+/* The combat log beside the stage (combat_log.js). */
+div.combatlog {position:absolute; top:0px; left:808px; width:300px; height:576px; overflow-y:auto; border:solid 2px #6060a0;
+    background-color:black; color:white; font:14px "Comic Relief",serif; padding:0 8px; box-sizing:border-box}
+div.combatlog h3 {font-size:15px; margin:8px 0 4px; color:#c0c0ff}
+div.combatlog p {margin:0 0 3px}
+/* Out of sight, still read out by screen readers. */
+div.combatlog.combatlog-hidden {left:-10000px; width:1px; height:1px; overflow:hidden; border:0; padding:0}
+
+/* Said to screen readers, not shown (combat_keys.js). */
+div.srstatus {position:absolute; left:-10000px; top:0; width:1px; height:1px; overflow:hidden}

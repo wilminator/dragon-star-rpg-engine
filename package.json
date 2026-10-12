@@ -1,0 +1,8 @@
+{
+  "name": "dragonstar-js-tests",
+  "private": true,
+  "description": "Unit tests for the client-side communication layer (app/javascript/) -- not the rendering/animation code. Zero external dependencies: uses only Node's built-in test runner (node:test) and assert module, so nothing here needs `npm install` before it can run.",
+  "scripts": {
+    "test": "node --test tests/javascript/*.test.js"
+  }
+}

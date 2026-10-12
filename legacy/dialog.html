@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" href="css/fight.css">
+    <link rel="stylesheet" href="css/fight_dialog.css">
+    <script src="javascript/audio.js"></script>
+    <script src="javascript/object_api.js"></script>
+    <script src="javascript/dialog_text.js"></script>
+    <script src="javascript/fight_dialog.js"></script>
+</head>
+
+<body>
+    <div id="fight" class="screen">
+        <div class="fightdialog" id="fightdialog">
+            <div class="fightdialogtext" id="fightdialogtext"></div>
+            
+            <img class="fightdialognext" id="fightdialognext" src="images/icons/menu/bignext.png">
+        </div>
+    </div>
+    <script>
+        var teamid = 1;
+        var player_party = 0;
+        const output = "`label,team_1``team,1,team_2``music,Fight End.mp3`Alice has earned 38 XP.\nYour team received 10 gold.\n`jump,end`"
+            + "`label,team_2``team,2,party_0``music,Fight End.mp3`Bob has earned 0 XP.\nYour team received 10 gold.\n`jump,end`"
+            + "`label,party_0``party,0,party_1``music,Fight End.mp3`The party has won!\n`jump,end`"
+            + "`label,party_1``party,1,none``music,Funeral March.mp3`The party has perished.\n`jump,end`"  
+            + "`label,none`I don't know what to make of this.\n"
+            + "`label,end``ack``mute`";
+        async function main() {
+            await process_fight_dialog(output);
+        }
+        main();
+    </script>
+
+</body>
+
+</html>

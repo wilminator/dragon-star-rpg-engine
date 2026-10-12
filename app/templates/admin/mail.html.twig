@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mail settings{% endblock %}
+{% block content %}
+<h2>Mail settings</h2>
+
+{% for message in messages %}<p>{{ message }}</p>{% endfor %}
+{% for problem in problems %}<p class="problem">{{ problem }}</p>{% endfor %}
+
+{% if config_problem %}
+  <p class="problem">{{ config_problem }}</p>
+{% else %}
+  <p>Sending as <b>{{ from_name }} &lt;{{ from }}&gt;</b> through <b>{{ transport }}</b>.</p>
+{% endif %}
+<p class="note">Mail is set up with environment variables (MAIL_TRANSPORT and friends); see include/mail.php.</p>
+
+{% if oauth %}
+  <h3>{{ oauth.provider }} mailbox {{ oauth.username }}</h3>
+  {% if oauth.from_environment %}
+    <p>Using the refresh token from MAIL_OAUTH_REFRESH_TOKEN.</p>
+  {% elseif oauth.connected %}
+    <p>Connected.</p>
+    <form method="post" action="mail.php" class="inline">
+      {{ csrf_field() }}<input type="hidden" name="action" value="disconnect">
+      <input type="submit" value="Disconnect">
+    </form>
+    <form method="post" action="mail.php" class="inline">
+      {{ csrf_field() }}<input type="hidden" name="action" value="connect">
+      <input type="submit" value="Reconnect">
+    </form>
+  {% else %}
+    <p>Not connected yet: sign in to {{ oauth.provider }} as {{ oauth.username }} and allow sending mail.</p>
+    <p class="note">The app registration must list this return address: {{ oauth.redirect_uri }}</p>
+    <form method="post" action="mail.php">
+      {{ csrf_field() }}<input type="hidden" name="action" value="connect">
+      <input type="submit" value="Connect {{ oauth.provider }} mailbox">
+    </form>
+  {% endif %}
+{% endif %}
+
+{% if not config_problem %}
+<h3>Send a test email</h3>
+<form method="post" action="mail.php">
+  {{ csrf_field() }}<input type="hidden" name="action" value="test">
+  To: <input type="email" name="to" value="{{ test_to }}">
+  <input type="submit" value="Send">
+</form>
+{% endif %}
+
+<p><a href="index.php">Back</a></p>
+{% endblock %}

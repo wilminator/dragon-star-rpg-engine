@@ -1,0 +1,26 @@
+#ID, Name, Type, Effect Modifier, Stat1, Stat2, Stat3
+1,Electric Shockwave Ability,2,5,30,25,0
+2,Endless Wail Ability,2,0,60,30,0
+3,Heal Ability,1,0,20,10,0
+4,Healsome Ability,1,0,80,60,0
+5,Life Ability,1,0,25,15,0
+6,Fireball Ability,2,0,15,10,0
+7,Firebomb Ability,2,10,30,15,0
+8,Fire Nuke Ability,2,1,80,40,0
+9,Rejuvinate Ability,1,0,35,20,0
+10,Sweep And Stomp Ability,2,0,50,100,0
+11,Devil Dawg Ability,2,0,100,20,0
+12,Morbid Pun Ability,2,0,25,15,0
+13,Revive Ability,3,0,100,100,0
+14,Fire Blast Ability,2,10,150,100,0
+15,Lifesome Ability,1,0,150,100,0
+16,Firebane Ability,2,1,300,150,0
+17,Head Bash Ability,2,0,150,450,0
+18,Banshee Cry Ability,2,0,150,250,0
+19,Waterspout Ability,2,2,15,20,0
+20,Waterspouts Ability,2,2,20,50,0
+21,Fireballs Ability,2,1,45,30,0
+22,Hot-dukin' Ability,2,1,30,50,0
+23,First Aid Ability,1,0,30,10,0
+24,Air Support Ability,2,1,50,40,0
+25,Wilderness First Aid Ability,1,0,100,100,0

@@ -1,0 +1,123 @@
+{% extends 'base.html.twig' %}
+{% block title %}Logs{% endblock %}
+{% block head %}
+<style>
+  pre { max-height: 20em; overflow: auto; background: #f4f4f4; padding: 0.5em; margin: 0.3em 0; }
+  tr.resolved td { color: #777; }
+  .counts span { margin-right: 1.2em; }
+  .level-error { color: #b00; } .level-warning { color: #a60; }
+</style>
+{% endblock %}
+{% block content %}
+<h2>Logs</h2>
+
+{% for message in messages %}<p>{{ message }}</p>{% endfor %}
+{% for problem in problems %}<p class="problem">{{ problem }}</p>{% endfor %}
+
+{% if open_counts %}
+  {% for category, kinds in open_counts %}
+    <p class="counts"><b><a href="logs.php?category={{ category }}">{{ categories[category] ?? category }}</a></b> &ndash; open:
+      {% for kind, count in kinds %}<span><a href="logs.php?category={{ category }}&amp;kind={{ kind|url_encode }}">{{ kind }}</a> {{ count }}</span>{% endfor %}
+    </p>
+  {% endfor %}
+{% else %}
+  <p>Nothing open.</p>
+{% endif %}
+
+<form method="get" action="logs.php">
+  Log:
+  <select name="category">
+    <option value="">all</option>
+    {% for category, label in categories %}<option value="{{ category }}"{% if input.category == category %} selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  Level:
+  <select name="level">
+    <option value="">any</option>
+    {% for level in levels %}<option value="{{ level }}"{% if input.level == level %} selected{% endif %}>{{ level }}</option>{% endfor %}
+  </select>
+  Kind:
+  <select name="kind">
+    <option value="">any</option>
+    {% for kind in kinds %}<option value="{{ kind }}"{% if input.kind == kind %} selected{% endif %}>{{ kind }}</option>{% endfor %}
+  </select>
+  Player: <input name="player" placeholder="name or id" value="{{ input.player }}" size="12">
+  Fight: <input name="fight" value="{{ input.fight }}" size="6">
+  From: <input name="from" placeholder="YYYY-MM-DD [HH:MM]" value="{{ input.from }}" size="16">
+  To: <input name="to" placeholder="YYYY-MM-DD [HH:MM]" value="{{ input.to }}" size="16">
+  Status:
+  <select name="status">
+    {% for value in ['open', 'resolved', 'all'] %}<option value="{{ value }}"{% if input.status == value %} selected{% endif %}>{{ value }}</option>{% endfor %}
+  </select>
+  Containing: <input name="text" value="{{ input.text }}" size="14">
+  <input type="submit" value="Search">
+</form>
+
+{% if entries|length >= limit %}<p class="note">Showing the newest {{ limit }} matches. Narrow the search to see older ones.</p>{% endif %}
+
+{% if entries %}
+<form method="post" action="logs.php">
+  {{ csrf_field() }}<input type="hidden" name="return" value="{{ return }}">
+  <table class="list">
+    <tr><th></th><th>When</th><th>Log</th><th>Kind</th><th>Message</th><th>Player</th><th>Fight</th><th>Status</th></tr>
+    {% for e in entries %}
+    <tr class="{{ e.resolved_at ? 'resolved' : '' }}">
+      <td><input type="checkbox" name="ids[]" value="{{ e.id }}"></td>
+      <td>{{ e.created_at|date('Y-m-d H:i:s') }}</td>
+      <td>{{ e.category }} <span class="level-{{ e.level }}">{{ e.level }}</span></td>
+      <td>{{ e.kind }}</td>
+      <td>{{ e.message }}
+        {% if e.details_text or e.request or e.location %}
+        <details><summary class="note">details</summary>
+          {% if e.request %}<div class="note">Request: {{ e.request }}</div>{% endif %}
+          {% if e.location %}<div class="note">At: {{ e.location }}</div>{% endif %}
+          {% if e.ip %}<div class="note">From: {{ e.ip }}</div>{% endif %}
+          {% if e.details_text %}<pre>{{ e.details_text }}</pre>{% endif %}
+        </details>
+        {% endif %}
+      </td>
+      <td>{% if e.userid %}<a href="user.php?userid={{ e.userid }}">{{ e.username ?: e.userid }}</a>{% endif %}</td>
+      <td>{% if e.fightid %}<a href="fight_playback.php?fightid={{ e.fightid }}">{{ e.fightid }}</a>{% endif %}</td>
+      <td>{{ e.resolved_at ? 'resolved ' ~ e.resolved_at|date('Y-m-d') ~ ' by ' ~ e.resolved_by_name : 'open' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p>With the ticked entries:
+    <button type="submit" name="action" value="resolve">Mark resolved</button>
+    <button type="submit" name="action" value="reopen">Reopen</button>
+  </p>
+</form>
+{% elseif searched %}
+  <p>No entries match.</p>
+{% endif %}
+
+<h3>Each log's settings</h3>
+<p class="note">A log that's off records nothing; the debug log is switched on channel by channel, each off until you tick it. Entries older than the age limit, or past the row limit, are purged
+  oldest first (checked as entries arrive, at most once a minute). When a purge is due, the cull removes that
+  percentage of the row limit (or of the whole log, with no row limit) as well, so purges come in batches; at 0% only
+  what's due goes. Leave a limit blank for none.</p>
+{% for log in logs %}
+<form method="post" action="logs.php" id="log-{{ log.category }}">
+  {{ csrf_field() }}<input type="hidden" name="category" value="{{ log.category }}"><input type="hidden" name="return" value="{{ return }}">
+</form>
+{% endfor %}
+<table class="list">
+  <tr><th>Log</th><th>Entries</th><th>On</th><th>Keep days</th><th>Keep at most</th><th>Cull %</th><th></th></tr>
+  {% for log in logs %}
+  {% set f = 'log-' ~ log.category %}
+  <tr>
+    <td>{{ log.label }}</td>
+    <td>{{ log.count }}</td>
+    <td>{% if log.channels %}
+        {% for channel in log.channels %}<label style="display:block;white-space:nowrap"><input form="{{ f }}" type="checkbox" name="channels[]" value="{{ channel.name }}"{% if channel.enabled %} checked{% endif %}> {{ channel.label }}</label>{% endfor %}
+      {% else %}<input form="{{ f }}" type="checkbox" name="enabled" value="1"{% if log.enabled %} checked{% endif %}>{% endif %}</td>
+    <td><input form="{{ f }}" name="days" value="{{ log.days }}" size="5"></td>
+    <td><input form="{{ f }}" name="rows" value="{{ log.rows }}" size="8"></td>
+    <td><input form="{{ f }}" name="cull_percent" value="{{ log.cull_percent }}" size="3"></td>
+    <td><button form="{{ f }}" type="submit" name="action" value="settings">Save</button>
+        <button form="{{ f }}" type="submit" name="action" value="purge">Purge what's due</button></td>
+  </tr>
+  {% endfor %}
+</table>
+
+<p><a href="index.php">Back</a></p>
+{% endblock %}

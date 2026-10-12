@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+{% block title %}Your account{% endblock %}
+{% block head %}
+<style>
+  section { border-top: 1px solid #ccc; margin-top: 1.5em; padding-top: 0.5em; }
+  .secret { font-family: monospace; font-size: 1.1em; }
+</style>
+<script src="assets/webauthn.js" defer></script>
+{% endblock %}
+{% block content %}
+<h1>Your account</h1>
+<p><a href="pick_team.php">Back to the game</a> &middot; <a href="logout.php">Log out</a></p>
+
+{% for message in messages %}<p>{{ message }}</p>{% endfor %}
+{% for problem in problems %}<p class="problem">{{ problem }}</p>{% endfor %}
+
+<section>
+  <p>Username: <b>{{ account.username }}</b><br>
+     Email: <b>{{ account.email ?: 'none' }}</b>
+     {% if pending_email %}<span class="note">(changing to {{ pending_email }}, waiting for a link to be followed)</span>{% endif %}<br>
+     Two-factor sign-in: <b>{{ account.two_factor ? 'on' : 'off' }}</b>
+     {% if account.two_factor %}<span class="note">({{ account.recovery_codes_left }} recovery codes left)</span>{% endif %}</p>
+  {% if pending_changes %}
+    <p class="note">Waiting for you to follow the emailed link to:</p>
+    <ul>{% for change in pending_changes %}<li class="note">{{ change }}</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+
+<section>
+  <h2 id="profile">Public profile</h2>
+  <p class="note">Your profile shows your handle, your teams' heroes with their jobs and levels, and each team's kept, underdog
+    and overkill fights &ndash; nothing else. Your handle can't be your username or email address.</p>
+  <form method="post" action="account.php">
+    {{ csrf_field() }}
+    <p><label>Handle: <input name="handle" value="{{ profile.handle }}" size="24" maxlength="24" autocomplete="off"></label></p>
+    <p><label><input type="checkbox" name="is_public" value="1"{% if profile.is_public %} checked{% endif %}> Public: anyone with the link can see it</label><br>
+       <label><input type="checkbox" name="searchable" value="1"{% if profile.searchable %} checked{% endif %}> Listed when people search for players</label></p>
+    <button type="submit" name="action" value="profile">Save</button>
+  </form>
+  {% if profile.is_public %}<p>Your profile: <a href="profile.php?p={{ profile.guid }}">profile.php?p={{ profile.guid }}</a></p>{% endif %}
+  <p><a href="players.php">Find a player</a></p>
+</section>
+
+<section>
+  <h2>Change your password</h2>
+  <form method="post" action="account.php">
+    {{ csrf_field() }}<input type="hidden" name="action" value="password">
+    <table>
+      <tr><td><label for="current_password">Current password</label></td><td><input type="password" id="current_password" name="current_password" autocomplete="current-password" required></td></tr>
+      <tr><td><label for="new_password">New password</label></td><td><input type="password" id="new_password" name="new_password" autocomplete="new-password" required> <span class="note">at least {{ min_password_length }} characters</span></td></tr>
+      <tr><td><label for="new_password2">New password again</label></td><td><input type="password" id="new_password2" name="new_password2" autocomplete="new-password" required></td></tr>
+    </table>
+    <button type="submit">Change password</button>
+  </form>
+</section>
+
+<section>
+  <h2>Change your email address</h2>
+  {% if not account.can_change_email %}
+    <p>This account has no email address to approve a change from. Ask an admin to set one.</p>
+  {% else %}
+    <p class="note">
+      {% if account.two_factor %}Because two-factor sign-in is on, the change must be approved with your second factor.
+      {% else %}We'll send a link to your current address to approve the change.{% endif %}
+      Then we'll send a link to the new address to confirm it.
+    </p>
+    <form method="post" action="account.php">
+      {{ csrf_field() }}<input type="hidden" name="action" value="email">
+      <p><label>New email: <input type="email" name="new_email" autocomplete="email" required></label></p>
+      {% if account.two_factor %}
+        {{ include('account/_second_factor.html.twig', {second: second}) }}
+      {% endif %}
+      <button type="submit">Change email</button>
+    </form>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Two-factor sign-in</h2>
+  <p class="note">A second factor is asked for after your password when you log in, and to approve email changes.
+     You can use an authenticator app, security keys, or both. Every change here is confirmed from a link we email you.</p>
+
+  <h3>Authenticator app</h3>
+  {% if account.app %}
+    <p>Set up.</p>
+    <form method="post" action="account.php">
+      {{ csrf_field() }}<input type="hidden" name="action" value="remove_app">
+      <button type="submit">Remove the authenticator app</button>
+    </form>
+  {% elseif setup %}
+    <p>1. In your authenticator app (Google Authenticator, Authy, 1Password, ...), add an account by scanning this code:</p>
+    <p><img src="{{ setup.qr }}" alt="QR code for your authenticator app" width="200" height="200"></p>
+    <p>or by typing this key: <span class="secret">{{ setup.secret }}</span></p>
+    <p>2. Enter the code the app shows. We'll then email you a link to confirm adding it.</p>
+    <form method="post" action="account.php" class="inline">
+      {{ csrf_field() }}<input type="hidden" name="action" value="add_app">
+      <input name="code" inputmode="numeric" autocomplete="one-time-code" aria-label="Code from your authenticator app" required autofocus>
+      <button type="submit">Continue</button>
+    </form>
+    <form method="post" action="account.php" class="inline">
+      {{ csrf_field() }}<input type="hidden" name="action" value="cancel_app">
+      <button type="submit">Cancel</button>
+    </form>
+  {% else %}
+    <form method="post" action="account.php">
+      {{ csrf_field() }}<input type="hidden" name="action" value="start_app">
+      <button type="submit">Set up an authenticator app</button>
+    </form>
+  {% endif %}
+
+  <h3>Security keys and passkeys</h3>
+  {% if keys %}
+    <table class="list">
+      <tr><th>Name</th><th>Added</th><th>Last used</th><th></th></tr>
+      {% for key in keys %}
+      <tr>
+        <td>{{ key.name }}</td>
+        <td>{{ key.created_at|date('Y-m-d') }}</td>
+        <td>{{ key.last_used_at ? key.last_used_at|date('Y-m-d H:i') : 'never' }}</td>
+        <td><form method="post" action="account.php" class="inline">
+          {{ csrf_field() }}<input type="hidden" name="action" value="remove_key"><input type="hidden" name="keyid" value="{{ key.keyid }}">
+          <button type="submit">Remove</button>
+        </form></td>
+      </tr>
+      {% endfor %}
+    </table>
+  {% else %}
+    <p>None yet.</p>
+  {% endif %}
+  {% if register_options %}
+    <form method="post" action="account.php">
+      {{ csrf_field() }}<input type="hidden" name="action" value="add_key">
+      <label>Name for the key: <input name="key_name" maxlength="64" placeholder="e.g. YubiKey, laptop"></label>
+      <button type="button" data-webauthn="create" data-options="{{ register_options|json_encode }}">Add a security key</button>
+    </form>
+  {% endif %}
+
+  {% if account.two_factor %}
+  <h3>Recovery codes</h3>
+  <p>{{ account.recovery_codes_left }} left. Each works once in place of a code or key, if you lose them.</p>
+  <form method="post" action="account.php">
+    {{ csrf_field() }}<input type="hidden" name="action" value="new_codes">
+    <button type="submit">Make new recovery codes</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

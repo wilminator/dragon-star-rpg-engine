@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Confirm your email{% endblock %}
+{% block content %}
+<h1>DragonStar RPG</h1>
+{% if confirmed %}
+  <h2>Email confirmed</h2>
+  <p>Thanks, {{ username }}. Your account is ready.</p>
+  <p><a href="login.php">Log in</a></p>
+{% else %}
+  <h2>That link didn't work</h2>
+  <p>It may have expired, or already been used.</p>
+  <p><a href="resend_confirmation.php">Send a new confirmation link</a> &middot; <a href="login.php">Log in</a></p>
+{% endif %}
+{% endblock %}

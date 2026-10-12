@@ -1,0 +1,54 @@
+/* The game's fonts. Paths are relative to this CSS file (app/css/), so
+   ../images/fonts/ is app/images/fonts/.
+
+   Comic Relief: what the fight UI uses today, in place of
+   Comic Sans MS (fight.css, fight_message.css, herostat.css,
+   monster.css, timerbox.css). A metric-compatible stand-in for
+   Comic Sans, so layouts sized for it still fit. Regular and Bold only;
+   italics are the browser's synthetic slant.
+
+   Comic Neue: an earlier stand-in, still declared (all its weights are
+   in place) but no longer used.
+
+   Press Start 2P: the conversation and fight dialog text
+   (dialogs.css, fight_dialog.css); the rest of the game moves to it
+   when the screens are reworked after the move to Python.
+
+   Comic Relief, Comic Neue and Press Start 2P are under the SIL Open Font License --
+   free to use and redistribute, no attribution required.
+*/
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../images/fonts/ComicNeue-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Comic Neue";
+    src: url("../images/fonts/ComicNeue-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Comic Relief";
+    src: url("../images/fonts/ComicRelief-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Comic Relief";
+    src: url("../images/fonts/ComicRelief-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Press Start 2P";
+    src: url("../images/fonts/press-start-2p.woff") format("woff"),
+         url("../images/fonts/PressStart2P-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}

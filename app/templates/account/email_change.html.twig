@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+{% block title %}Change email address{% endblock %}
+{% block content %}
+<h1>DragonStar RPG</h1>
+{% if result == 'ask' %}
+  <h2>{{ kind == 'approve' ? 'Approve changing your email address' : 'Confirm your new email address' }}</h2>
+  <p>{{ kind == 'approve' ? 'Change' : 'Finish changing' }} your account's email address to <b>{{ new_email }}</b>?</p>
+  <form method="post" action="email_change.php">
+    {{ csrf_field() }}<input type="hidden" name="{{ kind }}" value="{{ token }}">
+    <button type="submit">{{ kind == 'approve' ? 'Approve the change' : 'Confirm' }}</button>
+  </form>
+  {% if kind == 'approve' %}<p class="note">If you didn't ask for this, just close this page, and consider changing your password.</p>{% endif %}
+{% elseif result == 'approved' %}
+  <h2>Change approved</h2>
+  <p>We've sent a link to <b>{{ new_email }}</b>. Follow it to finish changing your address.</p>
+{% elseif result == 'changed' %}
+  <h2>Email address changed</h2>
+  <p>Your account's email address is now <b>{{ new_email }}</b>.</p>
+{% else %}
+  <h2>That link didn't work</h2>
+  <p>It may have expired or already been used, or the new address may have been taken since. You can start the change again from your account page.</p>
+{% endif %}
+<p><a href="account.php">Your account</a></p>
+{% endblock %}

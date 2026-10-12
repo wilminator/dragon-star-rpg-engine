@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+{% block title %}Accounts{% endblock %}
+{% block content %}
+<h2>Accounts</h2>
+
+<form method="get" action="users.php">
+  Search: <input type="text" name="q" placeholder="username, email or id" value="{{ search.text }}">
+  <label><input type="checkbox" name="on_hold" value="1"{% if search.on_hold %} checked{% endif %}> On hold</label>
+  <label><input type="checkbox" name="unverified" value="1"{% if search.unverified %} checked{% endif %}> Email not confirmed</label>
+  Holding:
+  <select name="right">
+    <option value="">any rights</option>
+    {% for name, description in all_rights %}
+      <option value="{{ name }}"{% if search.right == name %} selected{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+  <input type="submit" value="Search">
+</form>
+
+{% if accounts %}
+<table class="list">
+  <tr><th>Id</th><th>Username</th><th>Email</th><th>Status</th><th>Created</th><th>Last login</th><th>Rights</th></tr>
+  {% for account in accounts %}
+  <tr>
+    <td>{{ account.userid }}</td>
+    <td><a href="user.php?userid={{ account.userid }}">{{ account.username }}</a></td>
+    <td>{{ account.email }}</td>
+    <td>
+      {%- if account.on_hold %}<b>On hold</b>{% endif %}
+      {%- if account.on_hold and not account.verified %}, {% endif %}
+      {%- if not account.verified %}Email not confirmed{% endif %}
+      {%- if not account.on_hold and account.verified %}Active{% endif -%}
+      {%- if account.two_factor %} (2FA){% endif -%}
+    </td>
+    <td>{{ account.created_at ? account.created_at|date('Y-m-d') : '' }}</td>
+    <td>{{ account.last_login_at ? account.last_login_at|date('Y-m-d H:i') : 'never' }}</td>
+    <td>{{ account.rights|join(', ') }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No accounts match.</p>
+{% endif %}
+
+<h3>Create an account</h3>
+<p class="note">Accounts made here can log in straight away.</p>
+{% if create.problem %}<p class="problem">{{ create.problem }}</p>{% endif %}
+<form method="post" action="users.php">
+  {{ csrf_field() }}
+  Username: <input type="text" name="username" value="{{ create.username }}">
+  Email (optional): <input type="email" name="email" value="{{ create.email }}">
+  Password: <input type="password" name="password" autocomplete="new-password">
+  <div>
+    {% for name, description in all_rights %}
+      <label class="right"><input type="checkbox" name="rights[]" value="{{ name }}"{% if name in create.rights %} checked{% endif %}> <b>{{ name }}</b> &ndash; {{ description }}</label>
+    {% endfor %}
+  </div>
+  <input type="submit" value="Create">
+</form>
+
+<p><a href="index.php">Back</a></p>
+{% endblock %}

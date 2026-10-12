@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}DragonStar{% endblock %}</title>
+<style>
+  body { font-family: sans-serif; margin: 2em; }
+  table.list { border-collapse: collapse; }
+  table.list th, table.list td { border: 1px solid #999; padding: 4px 8px; text-align: left; }
+  .problem { color: #b00; font-weight: bold; }
+  .note { color: #555; }
+  form.inline { display: inline; margin: 0; }
+  label.right { display: block; margin: 2px 0; }
+</style>
+{% block head %}{% endblock %}
+</head>
+<body>
+{% block content %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% autoescape false %}
+Hello {{ username }},
+
+Someone logged in to your DragonStar account asked to change its email
+address to:
+
+    {{ new_email }}
+
+If that was you, approve the change with this link:
+
+{{ link }}
+
+We'll then send a link to the new address to confirm it. The link works
+for {{ hours }} hours. If it wasn't you, ignore this email and consider
+changing your password: your address stays as it is.
+{% endautoescape %}

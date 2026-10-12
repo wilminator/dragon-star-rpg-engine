@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+{% block title %}Account {{ account.username }}{% endblock %}
+{% block content %}
+<h2>Account {{ account.username }} ({{ account.userid }})</h2>
+
+{% if created %}<p>Account created.</p>{% endif %}
+{% if saved %}<p>Saved.</p>{% endif %}
+{% for problem in problems %}<p class="problem">{{ problem }}</p>{% endfor %}
+
+<p class="note">
+  Created {{ account.created_at ? account.created_at|date('Y-m-d H:i') : 'unknown' }} &nbsp;
+  Last login {{ account.last_login_at ? account.last_login_at|date('Y-m-d H:i') : 'never' }}
+</p>
+
+<form method="post" action="user.php?userid={{ account.userid }}">
+  {{ csrf_field() }}
+  <table>
+    <tr><td>Username</td><td><input type="text" name="username" value="{{ account.username }}"></td></tr>
+    <tr><td>Email</td><td><input type="email" name="email" value="{{ account.email }}"></td></tr>
+    <tr><td></td><td><label><input type="checkbox" name="verified" value="1"{% if account.verified %} checked{% endif %}> Email confirmed (the account can log in)</label></td></tr>
+    <tr><td></td><td><label><input type="checkbox" name="on_hold" value="1"{% if account.on_hold %} checked{% endif %}> On hold (can't log in)</label></td></tr>
+    <tr><td>Two-factor</td><td>
+      {% if account.two_factor %}On ({{ account.two_factor_app ? 'authenticator app' : 'no app' }}, {{ account.security_keys }} security key{{ account.security_keys == 1 ? '' : 's' }})
+        &nbsp; <label><input type="checkbox" name="two_factor_off" value="1"> Turn it off: remove the app, keys and recovery codes (for a player who lost them all)</label>
+      {% else %}Off{% endif %}
+    </td></tr>
+    <tr><td>New password</td><td><input type="password" name="password" autocomplete="new-password" placeholder="leave blank to keep"></td></tr>
+    <tr>
+      <td valign="top">Rights</td>
+      <td>
+        {% for name, description in all_rights %}
+          <label class="right"><input type="checkbox" name="rights[]" value="{{ name }}"{% if name in account.rights %} checked{% endif %}> <b>{{ name }}</b> &ndash; {{ description }}</label>
+        {% endfor %}
+      </td>
+    </tr>
+  </table>
+  <input type="submit" value="Save">
+</form>
+
+<h3>Teams</h3>
+{% if teams %}
+<ul>
+  {% for team in teams %}
+    <li>{{ team.name }} ({{ team.teamid }}) &ndash; <a href="fight_playback.php?team={{ team.teamid }}">fights</a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>None.</p>
+{% endif %}
+<p><a href="fight_playback.php?player={{ account.userid }}">All of this player's fights</a></p>
+
+<h3>Monster tokens</h3>
+<p>{{ tokens }} token{{ tokens == 1 ? '' : 's' }}.
+  {% if alliance %}Alliance of teams {{ alliance.teamids|join(', ') }}: {{ alliance.state }}{% if alliance.state == 'active' %}, {{ alliance.minutes_left }} minutes left{% endif %}{% if alliance.overtime_minutes %}, {{ alliance.overtime_minutes }} minutes of overtime owed{% endif %}.{% endif %}</p>
+<form method="post" action="user.php?userid={{ account.userid }}">
+  {{ csrf_field() }}
+  Grant <input name="grant_tokens" size="3" value="1"> tokens <input type="submit" value="Grant">
+</form>
+<p><a href="users.php">Back to accounts</a></p>
+{% endblock %}

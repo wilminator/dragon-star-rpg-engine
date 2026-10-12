@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block title %}Find a player{% endblock %}
+{% block content %}
+<h2>Find a player</h2>
+<form method="get" action="players.php">
+  <input name="q" value="{{ text }}" placeholder="handle" size="24" aria-label="Search players by handle"> <input type="submit" value="Search">
+</form>
+{% if problem %}<p class="problem">{{ problem }}</p>{% endif %}
+{% if text and not problem %}
+  {% if results %}
+    <ul>{% for result in results %}<li><a href="profile.php?p={{ result.guid }}">{{ result.handle }}</a></li>{% endfor %}</ul>
+    {% if results|length >= limit %}<p class="note">Showing the first {{ limit }}; type more of the handle to narrow it down.</p>{% endif %}
+  {% else %}
+    <p>No one matches.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

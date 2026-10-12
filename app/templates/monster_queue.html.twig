@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+{% block title %}Fight as the monsters{% endblock %}
+{% block content %}
+<h2>Fight as the monsters</h2>
+
+{% if problem %}<p class="problem">{{ problem }}</p>{% endif %}
+
+<p>Take control of the monsters in the next fight another player starts. If none starts within
+  {{ fallback_seconds }} seconds, you'll fight a practice battle against some of your own and your allies' heroes,
+  played by the computer &ndash; they gain and lose nothing from it.</p>
+<p class="note">Finishing a fight earns a token, and winning it earns another (up to {{ daily_limit }} a day); spend them to bring
+  your other teams into your party. Let a round pass without choosing a command or committing and the computer takes over the
+  monsters until you come back: that costs the token for playing, and if your monsters then lose while you're away,
+  you can't play the monsters again for {{ lockout_minutes }} minutes.</p>
+<p>Tokens: {{ tokens }}</p>
+
+{% if queued %}
+  <p id="status">Waiting for a fight&hellip;</p>
+  <form method="post" action="monster_queue.php">{{ csrf_field() }}
+    <button type="submit" name="action" value="leave">Stop waiting</button>
+  </form>
+  <script>
+  (function () {
+    var csrf = document.querySelector('input[name="csrf"]').value;
+    var status = document.getElementById('status');
+    function poll() {
+      var body = new URLSearchParams({action: 'poll', csrf: csrf});
+      fetch('monster_queue.php', {method: 'POST', body: body, credentials: 'same-origin'})
+        .then(function (r) { return r.json(); })
+        .then(function (answer) {
+          if (answer.state === 'fight') { window.location = 'rpg.php'; return; }
+          if (answer.state === 'waiting') {
+            status.textContent = 'Waiting for a fight… practice battle in ' + answer.seconds_left + ' seconds.';
+          } else if (answer.state === 'idle' || answer.state === 'expired') {
+            window.location = 'monster_queue.php' + (answer.problem ? '?problem=' + encodeURIComponent(answer.problem) : ''); return;
+          }
+          setTimeout(poll, 2000);
+        })
+        .catch(function () { setTimeout(poll, 2000); });
+    }
+    poll();
+  })();
+  </script>
+{% else %}
+  <form method="post" action="monster_queue.php">{{ csrf_field() }}
+    <button type="submit" name="action" value="join">Wait for a fight</button>
+  </form>
+{% endif %}
+<p><a href="pick_team.php">Back</a></p>
+{% endblock %}

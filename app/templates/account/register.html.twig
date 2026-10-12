@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+{% block title %}Create an account{% endblock %}
+{% block head %}{{ include('account/_bot_check_head.html.twig') }}{% endblock %}
+{% block content %}
+<h1>DragonStar RPG</h1>
+{% if done %}
+  <h2>Check your email</h2>
+  <p>We've sent a link to <b>{{ email }}</b>. Follow it to confirm your address, then log in.</p>
+  {% if mail_failed %}
+    <p class="problem">We couldn't send the email just now. <a href="resend_confirmation.php">Try sending it again</a> in a little while.</p>
+  {% endif %}
+  <p><a href="login.php">Log in</a></p>
+{% else %}
+  <h2>Create an account</h2>
+  {% if problem %}<p class="problem">{{ problem }}</p>{% endif %}
+  <form method="post" action="register.php">
+    {{ csrf_field() }}
+    <table>
+      <tr><td><label for="username">Username</label></td><td><input id="username" name="username" value="{{ username }}" autocomplete="username" required></td></tr>
+      <tr><td></td><td class="note">3 to 20 letters, digits, _ or -</td></tr>
+      <tr><td><label for="email">Email</label></td><td><input id="email" type="email" name="email" value="{{ email }}" autocomplete="email" required></td></tr>
+      <tr><td><label for="password">Password</label></td><td><input id="password" type="password" name="password" autocomplete="new-password" required></td></tr>
+      <tr><td></td><td class="note">At least {{ min_password_length }} characters</td></tr>
+      <tr><td><label for="password2">Password again</label></td><td><input id="password2" type="password" name="password2" autocomplete="new-password" required></td></tr>
+    </table>
+    {{ include('account/_bot_check.html.twig') }}
+    <p><button type="submit">Create account</button></p>
+  </form>
+  <p>Already have an account? <a href="login.php">Log in</a></p>
+{% endif %}
+{% endblock %}

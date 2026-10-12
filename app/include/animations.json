@@ -1,0 +1,192 @@
+{
+    "attack_close_animation": {
+        "images": [
+            "advancing image",
+            "attacking image",
+            "retreating image"
+        ],
+        "imageloc": [
+            "images/fighters/",
+            "images/fighters/",
+            "images/fighters/"
+        ],
+        "sounds": [
+            "sound played when image advances",
+            "sound played when image attacks",
+            "sound played when image retreats"
+        ],
+        "times": [
+            "number of frames to advance and retreat",
+            "ms into attack image for next sequence to begin",
+            "ms to wait while attack image is displayed"
+        ]
+    },
+    "base_animation": {
+        "images": [
+            "base image of main object"
+        ],
+        "imageloc": [
+            "images/fighters/"
+        ],
+        "sounds": [
+            "sound played when base image is shown"
+        ],
+        "times": [
+            "ms before animation allows next sequence to begin",
+            "speed of image fade for revive, 10 ms default"
+        ]
+    },
+    "die_animation": {
+        "images": [
+            "death image of main object"
+        ],
+        "imageloc": [
+            "images/fighters/"
+        ],
+        "sounds": [
+            "sound 1 played when image is shown",
+            "sound 2 played when image is shown"
+        ],
+        "times": [
+            "ms before animation allows next sequence to begin",
+            "ms before image fade",
+            "speed of image fade"
+        ]
+    },
+    "flee_animation": {
+        "images": [
+            "flee image of main object"
+        ],
+        "imageloc": [
+            "images/fighters/"
+        ],
+        "sounds": [
+            "sound played when flee image is shown"
+        ],
+        "times": [
+            "ms before animation allows next sequence to begin"
+        ]
+    },
+    "multi_impact": {
+        "images": [
+            "initial projectile image to display on screen",
+            "imapct image when projectile hits initial target",
+            "projectile image of sub-projectiles"
+        ],
+        "imageloc": [
+            "images/effects/",
+            "images/effects/",
+            "images/effects/"
+        ],
+        "sounds": [
+            "sound image makes as it appears on screen",
+            "sound made as each image hits its target"
+        ],
+        "times": [
+            "speed of initial projectile in pixels per frame",
+            "ms before animation allows next sequence to begin",
+            "frames before explosions are removed (150)",
+            "if not 0 or empty, causes images to appear at random"
+        ]
+    },
+    "pose_animation": {
+        "images": [
+            "new image of main object"
+        ],
+        "imageloc": [
+            "images/fighters/"
+        ],
+        "sounds": [
+            "sound played when image is shown"
+        ],
+        "times": [
+            "ms before animation allows next sequence to begin",
+            "ms before base animation is redisplayed"
+        ]
+    },
+    "ranged_arc_impact": {
+        "images": [
+            "initial projectile image to display on screen",
+            "imapct image when projectile hits initial target",
+            "projectile image of sub-projectiles"
+        ],
+        "imageloc": [
+            "images/effects/",
+            "images/effects/",
+            "images/effects/"
+        ],
+        "sounds": [
+            "sound image makes as it appears on screen",
+            "sound made as each fireball hits a target"
+        ],
+        "times": [
+            "speed of initial projectile in pixels per frame",
+            "ms before animation allows next sequence to begin",
+            "vertical acceleration affecting sub-projectiles (0.25)",
+            "frames to reach successive targets (30)",
+            "frames before explosions are removed (150)"
+        ]
+    },
+    "slide_right_impact": {
+        "images": [
+            "image to scroll across screen"
+        ],
+        "imageloc": [
+            "images/effects/"
+        ],
+        "sounds": [
+            "sound image makes as it starts across screen"
+        ],
+        "times": [
+            "ms before animation allows next sequence to begin",
+            "speed of object in pixels (25)"
+        ]
+    },
+    "static_impact": {
+        "images": [
+            "static image to display on screen"
+        ],
+        "imageloc": [
+            "images/effects/"
+        ],
+        "sounds": [
+            "sound image makes as it appears on screen"
+        ],
+        "times": [
+            "ms before damage is displayed",
+            "ms before animation allows next sequence to begin"
+        ]
+    },
+    "static_individual_impact": {
+        "images": [
+            "static image to display on target"
+        ],
+        "imageloc": [
+            "images/effects/"
+        ],
+        "sounds": [
+            "sound image makes as it appears on screen"
+        ],
+        "times": [
+            "ms before damage is displayed",
+            "ms before animation allows next sequence to begin"
+        ]
+    },
+    "static_multi_impact": {
+        "images": [
+            "static image to display on targets"
+        ],
+        "imageloc": [
+            "images/effects/"
+        ],
+        "sounds": [
+            "sound image makes as it appears on screen"
+        ],
+        "times": [
+            "frames before damage is displayed",
+            "ms before animation allows next sequence to begin",
+            "frames before animations are removed (150)",
+            "if not 0 or empty, causes images to appear at random"
+        ]
+    }
+}

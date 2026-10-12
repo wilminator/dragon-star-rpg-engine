@@ -1,0 +1,9 @@
+{# The honeypot field (hidden from people) and, when configured, the
+   Cloudflare Turnstile widget. Include inside the form; the page also
+   needs {% block head %}{{ include('account/_bot_check_head.html.twig') }}{% endblock %}. #}
+<div style="position:absolute; left:-10000px" aria-hidden="true">
+  <label>Leave this empty <input type="text" name="{{ honeypot_field }}" tabindex="-1" autocomplete="off"></label>
+</div>
+{% if turnstile_site_key %}
+  <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}"></div>
+{% endif %}

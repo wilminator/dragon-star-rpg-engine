@@ -1,0 +1,18 @@
+/app/maps/cache/
+swf/
+java/
+.env
+# app/include/cache/ holds the seed data that /admin/init_db.php loads, so it ships.
+app/include/cache copy/
+app/errorlog.txt
+backup_*.sql
+dse_dump
+app/admin/errorlog.txt
+vendor/
+.phpunit.result.cache
+errorlog.txt
+*.zip
+*.tar
+tests/fixtures/cache/
+secrets/
+compose.vanguardtavern.yml

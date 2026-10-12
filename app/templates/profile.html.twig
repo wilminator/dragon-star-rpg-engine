@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% block title %}{{ profile ? profile.handle : 'Player' }} &ndash; DragonStar{% endblock %}
+{% block head %}
+<style>
+  .team { border: 1px solid #999; padding: 0.5em 1em; margin: 1em 0; }
+  .team h3 { margin: 0.2em 0 0.5em; }
+</style>
+{% endblock %}
+{% block content %}
+{% if not profile %}
+  <p>There's no public profile here.</p>
+{% else %}
+  <h2>{{ profile.handle }}</h2>
+  {% for team in profile.teams %}
+    <div class="team">
+      <h3>{{ team.name }}</h3>
+      <table class="list">
+        <tr><th>Hero</th><th>Job</th><th>Level</th></tr>
+        {% for hero in team.heroes %}<tr><td>{{ hero.name }}</td><td>{{ hero.job }}</td><td>{{ hero.level }}</td></tr>{% endfor %}
+      </table>
+      {% if team.fights %}
+        <h4>Fights</h4>
+        <ul>
+          {% for fight in team.fights %}
+            <li><a href="{{ fight.url }}">{{ fight.label }}</a> &ndash; {{ fight.played_at|date('Y-m-d') }}{% if fight.rating %} ({{ fight.rating }}){% endif %}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% else %}
+    <p>No teams yet.</p>
+  {% endfor %}
+{% endif %}
+<p><a href="players.php">Find a player</a></p>
+{% endblock %}

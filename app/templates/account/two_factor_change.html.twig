@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+{% block title %}Confirm a sign-in change{% endblock %}
+{% block head %}<style>.codes { font-family: monospace; font-size: 1.2em; columns: 2; max-width: 20em; }</style>{% endblock %}
+{% block content %}
+<h1>DragonStar RPG</h1>
+{% if state == 'ask' %}
+  <h2>Confirm a change to your sign-in</h2>
+  <p>{{ username }}, someone logged in to your account asked to <b>{{ change }}</b>.</p>
+  <form method="post" action="two_factor_change.php" class="inline">
+    {{ csrf_field() }}<input type="hidden" name="token" value="{{ token }}">
+    <button type="submit" name="decision" value="confirm">Yes, that was me</button>
+    <button type="submit" name="decision" value="cancel">No, cancel it</button>
+  </form>
+  <p class="note">If it wasn't you, cancel it and change your password: someone else may know it.</p>
+{% elseif state == 'confirmed' %}
+  <h2>Done</h2>
+  <p>Confirmed: {{ change }}.</p>
+  {% if recovery_codes %}
+    <h3>Your recovery codes</h3>
+    <p><b>Write these down or store them somewhere safe now: they won't be shown again.</b>
+       Each one works once, in place of a code or security key, if you lose them.</p>
+    <ul class="codes">{% for code in recovery_codes %}<li>{{ code }}</li>{% endfor %}</ul>
+  {% endif %}
+  <p><a href="account.php">Your account</a></p>
+{% elseif state == 'cancelled' %}
+  <h2>Cancelled</h2>
+  <p>Nothing was changed. If you didn't ask for it, change your password.</p>
+  <p><a href="account.php">Your account</a></p>
+{% else %}
+  <h2>That link didn't work</h2>
+  <p>It may have expired or already been used. You can ask again from your account page.</p>
+  <p><a href="account.php">Your account</a></p>
+{% endif %}
+{% endblock %}

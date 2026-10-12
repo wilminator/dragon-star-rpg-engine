@@ -1,0 +1,182 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app:/var/www/html
+      # Composer packages (Twig, PHPMailer) -- composer.json lives at the
+      # project root, beside app/, so include/view.php finds these at
+      # ../../vendor from app/include in the container too.
+      - ./vendor:/var/www/vendor:ro
+    environment:
+      DB_TYPE: mysql
+      DB_HOST: db
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # The address players reach the site at -- used for links in
+      # emails and the mail OAuth return address (include/site.php).
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      # Mail (see include/mail.php). By default everything goes to the
+      # mailpit service below: read it at http://localhost:8025.
+      MAIL_TRANSPORT: ${MAIL_TRANSPORT:-smtp}
+      MAIL_FROM: ${MAIL_FROM:-noreply@dragonstar.local}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-DragonStar}
+      MAIL_HOST: ${MAIL_HOST:-mailpit}
+      MAIL_PORT: ${MAIL_PORT:-1025}
+      MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-none}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_OAUTH_CLIENT_ID: ${MAIL_OAUTH_CLIENT_ID:-}
+      MAIL_OAUTH_CLIENT_SECRET: ${MAIL_OAUTH_CLIENT_SECRET:-}
+      MAIL_OAUTH_TENANT: ${MAIL_OAUTH_TENANT:-common}
+      MAIL_OAUTH_REFRESH_TOKEN: ${MAIL_OAUTH_REFRESH_TOKEN:-}
+      # Where the encryption key slots are mounted (see the secrets below
+      # and include/secret_box.php).
+      ENCRYPTION_KEY_DIR: /run/secrets
+    # The two encryption key slots. Make them with
+    # utils/new_encryption_key.sh before the first `docker compose up`.
+    secrets:
+      - dragonstar_key_1
+      - dragonstar_key_2
+
+    depends_on:
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+
+  # Development mail catcher: accepts any mail on port 1025 and shows it
+  # at http://localhost:8025. Nothing it receives is delivered.
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+
+  test:
+    build: .
+    volumes:
+      - .:/var/www/project
+    working_dir: /var/www/project
+    profiles:
+      - test
+    environment:
+      # The test-db service below, not the game's own db.
+      MYSQL_HOST: test-db
+      MYSQL_TEST_USER: dragonstar_test
+      MYSQL_TEST_PASSWORD: ${DB_TEST_PASSWORD}
+      MYSQL_TEST_DATABASE: dragonstar_test
+      POSTGRES_HOST: postgres
+      POSTGRES_TEST_USER: dragonstar_test
+      POSTGRES_TEST_PASSWORD: ${DB_TEST_PASSWORD}
+      POSTGRES_TEST_DATABASE: dragonstar_test
+    depends_on:
+      test-db:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  # Test-only MySQL, separate from the game's db: tuned for speed over
+  # safety. Its data lives in memory (tmpfs) and nothing waits for disk
+  # writes, so the tests' constant table drops and re-creates are cheap;
+  # every start is a fresh, empty server. Never point anything that
+  # matters at it. docker/test-db-init.sql lets the test user make the
+  # per-process databases a parallel run uses.
+  test-db:
+    image: mysql:8.0
+    profiles:
+      - test
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: dragonstar_test
+      MYSQL_USER: dragonstar_test
+      MYSQL_PASSWORD: ${DB_TEST_PASSWORD}
+    command:
+      - --innodb-flush-log-at-trx-commit=0
+      - --innodb-flush-method=nosync
+      - --innodb-doublewrite=0
+      - --skip-log-bin
+      - --sync-binlog=0
+      - --performance-schema=OFF
+      - --innodb-buffer-pool-size=512M
+      - --max-connections=300
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      - ./docker/test-db-init.sql:/docker-entrypoint-initdb.d/test-db-init.sql:ro
+    healthcheck:
+      # Over TCP as the test user: the image's temporary set-up server
+      # doesn't listen on TCP, so this only passes once the real one is up.
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -udragonstar_test -p\"$$MYSQL_PASSWORD\" -e 'SELECT 1' dragonstar_test"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  # Client-side (app/javascript/) communication-layer tests --
+  # separate service from `test` above (which is PHPUnit, needs the
+  # custom PHP image and real databases) since this needs neither: an
+  # official Node image and nothing else. Zero external dependencies
+  # (see package.json), so no image build step and no `npm install`
+  # needed before this can run. Gated behind the same "test" profile,
+  # so it never starts on a plain `docker compose up`.
+  js-test:
+    image: node:22
+    volumes:
+      - .:/var/www/project
+    working_dir: /var/www/project
+    profiles:
+      - test
+    command: npm test
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Test-only: gated behind the "test" profile, so this never starts on
+  # a plain `docker compose up`, only when the test service is run (it
+  # brings this up automatically via depends_on). No persistent storage,
+  # deliberately -- each start is a clean database.
+  postgres:
+    image: postgres:16
+    profiles:
+      - test
+    environment:
+      POSTGRES_USER: dragonstar_test
+      POSTGRES_PASSWORD: ${DB_TEST_PASSWORD}
+      POSTGRES_DB: dragonstar_test
+    # Like test-db: in memory, and nothing waits for disk writes.
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off", "-c", "max_connections=300"]
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dragonstar_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db_data:
+
+# Encryption keys for secrets stored in the database. Kept out of the
+# database, backups and exports; never commit these files.
+secrets:
+  dragonstar_key_1:
+    file: ./secrets/dragonstar_key_1
+  dragonstar_key_2:
+    file: ./secrets/dragonstar_key_2

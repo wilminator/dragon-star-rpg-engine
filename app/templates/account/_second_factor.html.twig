@@ -1,0 +1,11 @@
+{# Asking for a second factor inside a form: a security key button (when
+   the account has keys; second.key_options from TwoFactor::key_request())
+   and a field for a code from the app or a recovery code. #}
+{% if second.key_options %}
+  <p><button type="button" data-webauthn="get" data-options="{{ second.key_options|json_encode }}">Use your security key</button></p>
+  <p>{{ second.app ? 'Or enter the code from your authenticator app, or a recovery code:' : 'Or enter a recovery code:' }}</p>
+{% else %}
+  <p>Enter the code from your authenticator app, or one of your recovery codes:</p>
+{% endif %}
+<p><input name="code" aria-label="Sign-in code" inputmode="{{ second.app ? 'numeric' : 'text' }}" autocomplete="one-time-code"{% if not second.key_options %} required autofocus{% endif %}></p>
+<script src="assets/webauthn.js" defer></script>

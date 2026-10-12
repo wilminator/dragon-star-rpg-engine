@@ -1,0 +1,33 @@
+div.fightdialog {
+    position:absolute; 
+    top:75px; 
+    left:100px; 
+    bottom:75px; 
+    right:100px; 
+    z-Index:230; 
+    border:solid 2px blue; 
+    background-color:black; 
+    color:white; 
+    visibility:hidden;
+    display:block;
+}
+
+div.fightdialogtext {
+    /* position:relative; */
+    margin: 8px;
+    height: 100%;
+    font-family:"Press Start 2P",monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    overflow: hidden;
+}
+
+img.fightdialognext {
+    position:absolute;
+    bottom:0px; 
+    right:0px; 
+    left: auto;
+    margin: 4px;
+    visibility:hidden;
+    object-fit: contain;
+}

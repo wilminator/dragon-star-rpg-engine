@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+{% block title %}DragonStar Login{% endblock %}
+{% block content %}
+<h1>DragonStar RPG</h1>
+{% if no_admin %}
+  <p class="problem">No admin account exists yet. Create one from the command line:
+     <code>utils/create_account.sh --username=NAME --email=ADDRESS --admin</code></p>
+{% endif %}
+{% if problem %}
+  <p class="problem">{{ problem }}{% if unverified %} <a href="resend_confirmation.php">Send it again</a>{% endif %}</p>
+{% endif %}
+
+{% if step == 'code' %}
+  <h2>Two-factor sign-in</h2>
+  <form method="post" action="login.php">
+    {{ csrf_field() }}<input type="hidden" name="step" value="code">
+    {{ include('account/_second_factor.html.twig', {second: second}) }}
+    <button type="submit">Log in</button>
+  </form>
+  <p><a href="login.php?cancel=1">Start over</a></p>
+{% else %}
+  <h2>Log in</h2>
+  <form method="post" action="login.php">
+    {{ csrf_field() }}
+    <table>
+      <tr><td><label for="username">Username</label></td><td><input id="username" name="username" autocomplete="username" autofocus></td></tr>
+      <tr><td><label for="password">Password</label></td><td><input id="password" type="password" name="password" autocomplete="current-password"></td></tr>
+      <tr><td colspan="2"><button type="submit">Log in!</button></td></tr>
+    </table>
+  </form>
+  <p><a href="register.php">Create an account</a> &middot; <a href="forgot_password.php">Forgot your password?</a></p>
+{% endif %}
+{% endblock %}

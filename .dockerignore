@@ -1,0 +1,6 @@
+.git
+*.bak
+*.zip
+*.tar
+secrets
+cache

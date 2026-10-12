@@ -1,0 +1,13 @@
+{% autoescape false %}
+Hello {{ username }},
+
+Someone logged in to your DragonStar account asked to {{ change }}.
+
+If that was you, confirm it here:
+
+{{ link }}
+
+The link works for {{ minutes }} minutes. If it wasn't you, don't follow
+the link -- nothing changes without it -- and change your password, since
+someone else may know it.
+{% endautoescape %}
