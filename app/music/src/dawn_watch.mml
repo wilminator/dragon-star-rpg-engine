@@ -1,0 +1,55 @@
+// Title theme for the Dragon Star RPG engine: a waltz in F major. Sixteen bars in 3/4, loops from the top.
+// Composed in chipsynth's MML by Claude at Michael Wilmes's request; rendered with chipsynth
+// (utils/asset-generators/chipsynth_music.py). CC0 1.0, see CREDITS.md.
+//
+// Structure: A (bars 1-8) a rising lead over F C Dm Bb, answered by F C Bb F;
+//            B (bars 9-16) moves to Gm and Dm, then Bb C leads back to F for the loop.
+// Voices: V1 lead (wide pulse, vibrato), V2 harp arpeggios (narrow pulse), V3 triangle bass, V4 a soft waltz beat.
+title Dawn Watch
+author Claude, at Michael Wilmes's request
+comment Title: a waltz in F major, 16 bars of 3/4, loops
+tempo 100
+time 3/4
+echo 300ms,30,20
+reverb 2
+
+[instr]
+lead  wave=pulse pw=50 a=0 d=9 s=11 r=5 vol=13 vib=4,2
+harp  wave=pulse pw=12 a=0 d=6 s=3 r=4 vol=9
+bass  wave=tri a=0 d=7 s=13 r=4 vol=15
+kick  wave=noise a=0 d=3 s=0 r=2 vol=11 send=0
+hat   wave=noise nmode=short a=0 d=1 s=0 r=1 vol=6 send=0
+
+[pat]
+// the harp's broken chords, six eighths a bar
+hF   = 4f a 5c f a 6c
+hC   = 4e g 5c e g 6c
+hDm  = 4d f a 5d f a
+hBb  = 4d f b- 5d f b-
+hGm  = 4d g b- 5d g b-
+hBbC = 4d f b- e g 5c
+// the bass: root, then the fifth on beats 2 and 3 (quarter notes)
+bF   = 2f 3c c
+bC   = 2c g g
+bDm  = 2d a a
+bBb  = 2b- 3f f
+bGm  = 2g 3d d
+bBbC = 2b- 3f 2g
+// the waltz beat
+waltz = @kick 2c @hat 7c c
+
+// A: bars 1-8
+V1: l4 v13 pan 0 @lead
+V1: 5c f a | g2 e4 | f e d | d2. | 5c f a | 6c4 5g e | f d 4b- | 5c2. |
+V2: l8 v9 pan -5 @harp
+V2: !hF | !hC | !hDm | !hBb | !hF | !hC | !hBb | !hF |
+V3: l4 v13 pan 0 @bass
+V3: !bF | !bC | !bDm | !bBb | !bF | !bC | !bBb | !bF |
+V4: l4 v8 pan 3
+V4: [!waltz |]x8
+
+// B: bars 9-16
+V1: 5d g b- | a2 f4 | g f d | e2 c4 | f a 6c | 5a2 f4 | g e d | f2. |
+V2: !hGm | !hDm | !hBb | !hC | !hF | !hDm | !hBbC | !hF |
+V3: !bGm | !bDm | !bBb | !bC | !bF | !bDm | !bBbC | !bF |
+V4: [!waltz |]x8

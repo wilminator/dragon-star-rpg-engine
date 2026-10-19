@@ -1,0 +1,65 @@
+// Boss theme for the Dragon Star RPG engine: a heavy phrygian riff in G minor. Sixteen bars, loops from the top.
+// Composed in chipsynth's MML by Claude at Michael Wilmes's request; rendered with chipsynth
+// (utils/asset-generators/chipsynth_music.py). CC0 1.0, see CREDITS.md.
+//
+// Structure: A (bars 1-8) the riff on Gm with a tritone turn, Eb F, then Gm Gm Ab D;
+//            B (bars 9-16) Cm Cm Ab Bb, Cm Eb D D, the bass pounding D to drive back into G.
+// Voices: V1 lead (pulse with a slow pulse-width sweep), V2 chord stabs (narrow pulse, arpeggiated),
+//         V3 filtered saw bass riff, V4 heavy drums with tom fills.
+title Wyrmfire
+author Claude, at Michael Wilmes's request
+comment Boss: a heavy phrygian riff in G minor, 16 bars, loops
+tempo 144
+time 4/4
+echo 200ms,30,18
+reverb 3
+
+[instr]
+lead  wave=pulse pw=50 a=0 d=8 s=10 r=4 vol=13 pws=35,65,3 vib=5,2
+stab  wave=pulse pw=25 a=0 d=5 s=3 r=3 vol=9
+bass  wave=saw a=0 d=5 s=10 r=2 vol=14 filter=lp,10,4
+kick  wave=noise a=0 d=4 s=0 r=2 vol=15 send=0
+snare wave=noise a=0 d=6 s=0 r=4 vol=13 send=0
+hat   wave=noise nmode=short a=0 d=1 s=0 r=1 vol=7 send=0
+tom   wave=noise a=0 d=5 s=0 r=3 vol=12 send=0
+
+[pat]
+// the riff: root root rest root, the fifth, root, then a two-note turn
+r1 = 2g g r g 3d 2g a- g
+r2 = 2g g r g 3d 2g 3c# 2d
+r3 = 2e- e- r e- 3b- 2e- 3d 2e-
+r4 = 2f f r f 3c 2f e- d
+r5 = 2a- a- r a- 3e- 2a- 3c 2a-
+r6 = 2d d r d 3a 2d 3f# 2d
+r7 = 2c c r c 3g 2c 3e- 2c
+r8 = 2b- b- r b- 3f 2b- 3d 2b-
+r9 = 2d d 3d d 2d d 3d d
+// chord stabs on beat 1 and the and of 2
+sGm = arp 0,3,7 4g4 r8 g4 r8 g4
+sEb = arp 0,4,7 4e-4 r8 e-4 r8 e-4
+sF  = arp 0,4,7 4f4 r8 f4 r8 f4
+sAb = arp 0,4,7 4a-4 r8 a-4 r8 a-4
+sD  = arp 0,4,7 4d4 r8 d4 r8 d4
+sCm = arp 0,3,7 4c4 r8 c4 r8 c4
+sBb = arp 0,4,7 4b-4 r8 b-4 r8 b-4
+// drums: a heavy beat and a tom fill
+beat = @kick 2c c @snare 5g @hat 7c @kick 2c @hat 7c @snare 5g @hat 7c
+fill = @kick 2c @snare 5g @tom 4c 3g @kick 2c @snare 5g16 g16 @tom 3e 3c
+
+// A: bars 1-8
+V1: l8 v13 pan 0 @lead
+V1: 5g4 a- g f4 d4 | 5g4 a- g b- a g4 | e-4 f e- d4 4b-4 | 5c4 d c 4a4 5c4 |
+V1: 5g4 a- g f4 d4 | 5g a- b- 6c d4 c 5b- | 6c4 5a- g a-4 6c4 | 6d4 5a f# a2 |
+V2: l8 v9 pan 4 @stab arprate 12
+V2: !sGm | !sGm | !sEb | !sF | !sGm | !sGm | !sAb | !sD |
+V3: l8 v14 pan -2 @bass
+V3: !r1 | !r2 | !r3 | !r4 | !r1 | !r2 | !r5 | !r6 |
+V4: l8 v12 pan 2
+V4: !beat | !beat | !beat | !fill | !beat | !beat | !beat | !fill |
+
+// B: bars 9-16
+V1: 6c4 d e- d4 c4 | 5g4 a- g e-4 g4 | a-4 b- a- g4 e-4 | f4 g f d4 f4 |
+V1: 6c4 5b- a- g4 e-4 | 5b-4 6c 5b- a-4 g4 | 5f#4 a 6c# d4 5a4 | 6d c# 5a f# d4 f#4 |
+V2: !sCm | !sCm | !sAb | !sBb | !sCm | !sEb | !sD | !sD |
+V3: !r7 | !r7 | !r5 | !r8 | !r7 | !r3 | !r6 | !r9 |
+V4: !beat | !beat | !beat | !fill | !beat | !beat | !beat | !fill |

@@ -16,6 +16,16 @@ These were made procedurally for Dragon Star in October 2026, using the scripts 
 - Effects (12): bomb, explode, explosion, fireball, small_fireball, huge_fireball, heal, punch, slash, waterspout_down, lightening_storm, blood.
 - Ability and item tiles (15): `app/images/icons/abilities/` bignone, fireball, firebomb, firenuke, heal, healsome, life, revive, shockwave, wail; `icons/items/` bigbomb, bignone, blue_leaf, green_leaf; `icons/menu/` bignone, none. They use the same bevelled tile style as the game's own icons.
 
+## Music made with chipsynth (October 2026, CC0 1.0, public domain dedication)
+
+Five original chiptune pieces for the engine, composed in the MML tune language of chipsynth (Michael Wilmes's chip synthesizer, https://github.com/wilminator/chipsynth) by Claude at Michael Wilmes's request, and rendered to MP3 with chipsynth. The sources are in `app/music/src/` and `utils/asset-generators/chipsynth_music.py` re-renders them. No third-party samples were used. They are dedicated to the public domain under CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/).
+
+- `dawn_watch.mp3`: title theme, a waltz in F major (loops).
+- `cold_hearth.mp3`: game over, a slow fall in D minor (plays once).
+- `open_sky.mp3`: map / hub theme, a lilting tune in B flat major (loops).
+- `quickblade.mp3`: combat theme, a fast riff in B minor (loops; one of the battle tracks beside `anger.mp3`).
+- `wyrmfire.mp3`: boss theme, a heavy phrygian riff in G minor (loops; nothing in the engine plays it yet).
+
 ## Third-party
 
 
