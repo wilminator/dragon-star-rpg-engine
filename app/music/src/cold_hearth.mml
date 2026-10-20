@@ -1,0 +1,37 @@
+// Game over for the Dragon Star RPG engine: a slow fall in D minor. Eight bars, plays once and rings out.
+// Composed in chipsynth's MML by Claude at Michael Wilmes's request; rendered with chipsynth
+// (utils/asset-generators/chipsynth_music.py). CC0 1.0, see CREDITS.md.
+//
+// Structure: the lead falls from A through Dm Gm Bb A, then again Dm Gm Bb-A to a final low D.
+// Voices: V1 lead (narrow pulse, slow vibrato), V2 a held chord tone (triangle pad),
+//         V3 triangle bass on the roots, V4 a tolling sine bell on D every bar.
+title Cold Hearth
+author Claude, at Michael Wilmes's request
+comment Game over: a slow fall in D minor, 8 bars, plays once
+tempo 72
+time 4/4
+once
+echo 420ms,35,25
+reverb 7
+
+[instr]
+lead wave=pulse pw=25 a=1 d=9 s=10 r=8 vol=12 vib=3,3
+pad  wave=tri a=7 d=10 s=12 r=10 vol=10
+bass wave=tri a=1 d=8 s=13 r=9 vol=14
+bell wave=sine a=0 d=10 s=0 r=10 vol=9
+
+V1: l4 v13 pan 0 @lead
+V1: 5a2 f4 e4 | d2. c4 | d c 4b- a | a1 |
+V1: 5f2 e4 d4 | c2 4b-4 a4 | g f e2 | d1 |
+
+V2: l1 v9 pan -4 @pad
+V2: 4f | 4g | 4f | 4e |
+V2: 4f | 4g | 4f2 e2 | 4f |
+
+V3: l1 v12 pan 0 @bass
+V3: 2d | 2g | 2b- | 2a |
+V3: 2d | 2g | 2b-2 a2 | 2d |
+
+V4: l4 v8 pan 4 @bell
+V4: 3d r2. | 3d r2. | 3d r2. | 3d r2. |
+V4: 3d r2. | 3d r2. | 3d r2. | 3d1 |

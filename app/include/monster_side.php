@@ -519,7 +519,8 @@ final class PracticeFight {
 
 // Pieces of starting a fight that several places share.
 final class FightSetup {
-    const BATTLE_MUSIC = ['anger.mp3'];
+    // Battle tracks: anger.mp3 (October 2026) and quickblade.mp3 (chipsynth, see CREDITS.md).
+    const BATTLE_MUSIC = ['anger.mp3', 'quickblade.mp3'];
 
     // One of the battle tracks present in MUSIC_DIR.
     public static function battle_music(): string {

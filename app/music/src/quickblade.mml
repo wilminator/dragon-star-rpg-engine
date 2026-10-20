@@ -1,0 +1,59 @@
+// Combat theme for the Dragon Star RPG engine: a fast riff in B minor. Sixteen bars, loops from the top.
+// Composed in chipsynth's MML by Claude at Michael Wilmes's request; rendered with chipsynth
+// (utils/asset-generators/chipsynth_music.py). CC0 1.0, see CREDITS.md.
+//
+// Structure: A (bars 1-8) a syncopated saw-bass riff under a leaping lead, Bm Bm G A, Bm Bm G F#;
+//            B (bars 9-16) Em D G A, Em D F# F#, the lead climbing an octave before the loop.
+// Voices: V1 lead (narrow pulse), V2 chip-chord stabs in sixteenth pairs, V3 saw bass riff, V4 drums with fills.
+title Quickblade
+author Claude, at Michael Wilmes's request
+comment Combat: a fast riff in B minor, 16 bars, loops
+tempo 168
+time 4/4
+echo 160ms,25,15
+
+[instr]
+lead  wave=pulse pw=25 a=0 d=7 s=9 r=3 vol=13
+stab  wave=pulse pw=12 a=0 d=4 s=2 r=2 vol=8
+bass  wave=saw a=0 d=6 s=9 r=2 vol=13
+kick  wave=noise a=0 d=3 s=0 r=2 vol=15 send=0
+snare wave=noise a=0 d=5 s=0 r=3 vol=13 send=0
+hat   wave=noise nmode=short a=0 d=1 s=0 r=1 vol=8 send=0
+crash wave=noise a=0 d=8 s=0 r=6 vol=10 send=0
+
+[pat]
+// the bass riff: root, root, octave, rest, root, rest, then two steps up to the next chord
+rB  = 2b b 3b r 2b r 3d c#
+rG  = 2g g 3g r 2g r 3b a
+rA  = 2a a 3a r 2a r 3c# 2b
+rFs = 2f# f# 3f# r 2f# r 3a# 2a#
+rE  = 2e e 3e r 2e r 3g 2e
+rD  = 2d d 3d r 2d r 3f# 2d
+// the stabs: off-beat sixteenth pairs on the chord root
+sBm = arp 0,3,7 r 4b16 b16 r b16 b16 r b16 b16 r b16 b16
+sG  = arp 0,4,7 r 4g16 g16 r g16 g16 r g16 g16 r g16 g16
+sA  = arp 0,4,7 r 4a16 a16 r a16 a16 r a16 a16 r a16 a16
+sFs = arp 0,4,7 r 4f#16 f#16 r f#16 f#16 r f#16 f#16 r f#16 f#16
+sEm = arp 0,3,7 r 4e16 e16 r e16 e16 r e16 e16 r e16 e16
+sD  = arp 0,4,7 r 4d16 d16 r d16 d16 r d16 d16 r d16 d16
+// drums: a double-kick beat, and a fill with a snare roll and a crash
+beat = @kick 2c @hat 7c16 c16 @snare 5g @kick 2c16 c16 @kick 2c @hat 7c @snare 5g @hat 7c16 c16
+fill = @kick 2c @snare 5g16 g16 @kick 2c @snare 5g16 g16 @snare 5g g @crash 4c4
+
+// A: bars 1-8
+V1: l8 v13 pan 0 @lead
+V1: 5b4 r a f# d f#4 | 5b4 r a 6c# 5b a4 | g4 r g b 6d 5b g | a g f# e f#4 r4 |
+V1: 5b4 r a f# d f#4 | 5b 6c# d c# 5b a f#4 | g4 b 6d c# 5b a g | f#4 a# 6c# 5a#4 f#4 |
+V2: l8 v8 pan 5 @stab arprate 16
+V2: !sBm | !sBm | !sG | !sA | !sBm | !sBm | !sG | !sFs |
+V3: l8 v13 pan -2 @bass
+V3: !rB | !rB | !rG | !rA | !rB | !rB | !rG | !rFs |
+V4: l8 v12 pan 2
+V4: !beat | !beat | !beat | !fill | !beat | !beat | !beat | !fill |
+
+// B: bars 9-16
+V1: 5e4 g b 6e 5b g4 | f#4 a 6d c# 5a f#4 | g4 b 6d e d 5b4 | a b 6c# 5a 6e4 e4 |
+V1: 6e d c# 5b g b 6e4 | 6d c# 5a f# a 6d c#4 | 6c#4 5a# f# a# 6c# e c# | 6e d c# 5b a# f# a#4 |
+V2: !sEm | !sD | !sG | !sA | !sEm | !sD | !sFs | !sFs |
+V3: !rE | !rD | !rG | !rA | !rE | !rD | !rFs | !rFs |
+V4: !beat | !beat | !beat | !fill | !beat | !beat | !beat | !fill |

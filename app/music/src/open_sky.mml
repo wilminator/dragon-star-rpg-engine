@@ -1,0 +1,61 @@
+// Map / hub theme for the Dragon Star RPG engine: a lilting tune in B flat major. Sixteen bars, loops from the top.
+// Composed in chipsynth's MML by Claude at Michael Wilmes's request; rendered with chipsynth
+// (utils/asset-generators/chipsynth_music.py). CC0 1.0, see CREDITS.md.
+//
+// Structure: A (bars 1-8) a dotted-rhythm lead over Bb Eb F Bb, Gm Eb F Bb;
+//            B (bars 9-16) Gm Dm Eb F, then Gm and a borrowed Ab before Eb F brings it home.
+// Voices: V1 lead (narrow pulse, vibrato), V2 off-beat chip chords (an arpeggiated pulse),
+//         V3 triangle bass in a root-fifth-octave lilt, V4 a light beat.
+title Open Sky
+author Claude, at Michael Wilmes's request
+comment Map: a lilting tune in B flat major, 16 bars, loops
+tempo 126
+time 4/4
+echo 240ms,30,20
+
+[instr]
+lead  wave=pulse pw=25 a=0 d=8 s=10 r=4 vol=13 vib=4,2
+chip  wave=pulse pw=50 a=0 d=5 s=4 r=2 vol=7
+bass  wave=tri a=0 d=7 s=13 r=3 vol=15
+kick  wave=noise a=0 d=3 s=0 r=2 vol=13 send=0
+snare wave=noise a=0 d=5 s=0 r=3 vol=11 send=0
+hat   wave=noise nmode=short a=0 d=1 s=0 r=1 vol=7 send=0
+
+[pat]
+// the chip chords: one root held as off-beat eighths, the arp spells the chord
+cBb  = arp 0,4,7 r 4b- r b- r b- r b-
+cEb  = arp 0,4,7 r 4e- r e- r e- r e-
+cF   = arp 0,4,7 r 4f r f r f r f
+cGm  = arp 0,3,7 r 4g r g r g r g
+cDm  = arp 0,3,7 r 4d r d r d r d
+cAb  = arp 0,4,7 r 4a- r a- r a- r a-
+cEbF = arp 0,4,7 r 4e- r e- r f r f
+// the bass lilt: root, fifth and octave, root, fifth
+bBb  = 2b-4 3f8 b-8 2b-4 3f4
+bEb  = 2e-4 b-8 3e-8 2e-4 b-4
+bF   = 2f4 3c8 f8 2f4 3c4
+bGm  = 2g4 3d8 g8 2g4 3d4
+bDm  = 2d4 a8 3d8 2d4 a4
+bAb  = 2a-4 3e-8 a-8 2a-4 3e-4
+bEbF = 2e-4 b-8 3e-8 2f4 3c4
+// drums: a light beat, and a bar with a small fill
+beat = @kick 2c @hat 7c c c @snare 5g @hat 7c c c
+fill = @kick 2c @hat 7c c c @snare 5g @hat 7c @snare 5g16 g16 @hat 7c
+
+// A: bars 1-8
+V1: l8 v13 pan 0 @lead
+V1: 5d4. f8 f4 d4 | e-4. g8 g4 f8 e-8 | f4. a8 a4 f4 | 6d4 5b-4 f2 |
+V1: g4. b-8 b-4 g4 | 6c4 5b-8 g8 g4 f4 | a4 f8 e-8 e-4 c4 | d2. f8 a8 |
+V2: l8 v7 pan 5 @chip arprate 12
+V2: !cBb | !cEb | !cF | !cBb | !cGm | !cEb | !cF | !cBb |
+V3: l8 v13 pan 0 @bass
+V3: !bBb | !bEb | !bF | !bBb | !bGm | !bEb | !bF | !bBb |
+V4: l8 v10 pan -3
+V4: [!beat | !beat | !beat | !fill |]x2
+
+// B: bars 9-16
+V1: 5b-4 a8 g8 g4 d4 | f4 e8 d8 d4 4a4 | g4 5e-8 d8 c4 4b-4 | 5c4 d8 e8 f2 |
+V1: g4. b-8 6d4 5b-4 | 6c4 5a-8 g8 g4 e-4 | e-4 g4 f4 a4 | b-2. r4 |
+V2: !cGm | !cDm | !cEb | !cF | !cGm | !cAb | !cEbF | !cBb |
+V3: !bGm | !bDm | !bEb | !bF | !bGm | !bAb | !bEbF | !bBb |
+V4: [!beat | !beat | !beat | !fill |]x2
