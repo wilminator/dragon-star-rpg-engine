@@ -3,8 +3,10 @@
 {% block content %}
 <h1>DragonStar RPG</h1>
 {% if no_admin %}
-  <p class="problem">No admin account exists yet. Create one from the command line:
-     <code>utils/create_account.sh --username=NAME --email=ADDRESS --admin</code></p>
+<p class="problem">No admin account exists yet. Create one from the command line, inside the web container:
+   <code>php admin/create_account.php --username=NAME --email=ADDRESS --admin</code>
+   <br>Running from the project folder with Docker Compose, this does the same:
+   <code>utils/create_account.sh --username=NAME --email=ADDRESS --admin</code></p>
 {% endif %}
 {% if problem %}
   <p class="problem">{{ problem }}{% if unverified %} <a href="resend_confirmation.php">Send it again</a>{% endif %}</p>
