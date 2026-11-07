@@ -1,0 +1,86 @@
+# Runs the published game image (built by .github/workflows/image.yml) on any
+# Docker host: no project folder, no build, nothing bound to a host path
+# except the encryption keys. Development uses compose.yml instead.
+#
+#   1. Put this file and a .env file (copy .env.template, then add the
+#      lines in "Settings" below) in one folder.
+#   2. Make the encryption keys on a machine with the project (the script
+#      is utils/new_encryption_key.sh) and copy secrets/dragonstar_key_1
+#      and secrets/dragonstar_key_2 into a ./secrets folder beside this file.
+#      Keep copies away from your database backups.
+#   3. docker compose -f compose.deploy.yml up -d
+#   4. Make the first admin (see DOCKER_README.md, "First run").
+#
+# Settings (.env). The first four are required; the rest have defaults.
+#   DB_DATABASE, DB_USER, DB_PASSWORD, MYSQL_ROOT_PASSWORD
+#   DRAGONSTAR_IMAGE_TAG   which image: staging (default), or a release such as 1.2.3
+#   WEB_PORT               the port the site is served on (default 8080)
+#   APP_URL                the address players use (default http://localhost:8080)
+#   MAIL_HOST, MAIL_PORT, MAIL_ENCRYPTION, MAIL_USERNAME, MAIL_PASSWORD, MAIL_FROM, MAIL_FROM_NAME
+#
+# To update PHP or the game: pull the new image and recreate the site.
+#   docker compose -f compose.deploy.yml pull
+#   docker compose -f compose.deploy.yml up -d
+
+services:
+  web:
+    image: ghcr.io/wilminator/dragon-star-rpg-engine:${DRAGONSTAR_IMAGE_TAG:-staging}
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    environment:
+      DB_TYPE: mysql
+      DB_HOST: db
+      DB_DATABASE: ${DB_DATABASE:?set DB_DATABASE in .env}
+      DB_USER: ${DB_USER:?set DB_USER in .env}
+      DB_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      MAIL_TRANSPORT: ${MAIL_TRANSPORT:-smtp}
+      MAIL_FROM: ${MAIL_FROM:-noreply@dragonstar.local}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-DragonStar}
+      MAIL_HOST: ${MAIL_HOST:-localhost}
+      MAIL_PORT: ${MAIL_PORT:-25}
+      MAIL_ENCRYPTION: ${MAIL_ENCRYPTION:-none}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      ENCRYPTION_KEY_DIR: /run/secrets
+    secrets:
+      - dragonstar_key_1
+      - dragonstar_key_2
+    volumes:
+      # The game-content cache and PHP's error log outlive the container.
+      # (The log is /var/log/apache2/php_errors.log: read it with
+      # docker compose -f compose.deploy.yml exec web tail -n 30 /var/log/apache2/php_errors.log)
+      - game_cache:/var/www/html/include/cache
+      - php_logs:/var/log/apache2
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD in .env}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    # No ports: only the web container talks to it.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+secrets:
+  dragonstar_key_1:
+    file: ./secrets/dragonstar_key_1
+  dragonstar_key_2:
+    file: ./secrets/dragonstar_key_2
+
+volumes:
+  db_data:
+  game_cache:
+  php_logs:

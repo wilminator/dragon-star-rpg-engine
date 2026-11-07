@@ -105,3 +105,11 @@ Run a DB query
 ```bash
 echo 'select * from team_members;'|docker compose exec -T db mysql -uroot -p$DB_PASS dse
 ```
+
+## Running the published image
+
+`compose.deploy.yml` runs the image from `ghcr.io/wilminator/dragon-star-rpg-engine`
+(built by `.github/workflows/image.yml`) on any Docker host, with no build and
+no project folder. Its header lists the settings and the four steps: a `.env`
+file, the two encryption key files, `docker compose -f compose.deploy.yml up -d`,
+then the first admin as described under "First run".
