@@ -1,0 +1,117 @@
+# Builds the production image (the game, its Composer packages and the
+# production PHP settings in one image) and pushes it to the GitHub
+# Container Registry as ghcr.io/wilminator/dragon-star-rpg-engine.
+#
+#   - Push a version tag (v1.2.3): the image is pushed tagged 1.2.3 and 1.2.
+#   - Run it by hand (Actions > image > Run workflow): the image is pushed
+#     tagged "staging".
+#
+# Nothing is pushed for ordinary commits or pull requests.
+#
+# The image is built with --pull and no cache, every time: PHP is compiled
+# into the base image, so a build that reuses old layers keeps old PHP.
+#
+# The Dockerfile is written out by the "Write the Dockerfile" step below
+# and is not a file in the repository: the development Dockerfile at the
+# top has no game code in it, and this image deliberately differs from it.
+name: image
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/wilminator/dragon-star-rpg-engine
+
+jobs:
+  image:
+    # A public repository: GitHub's own runners, never the NAS pool.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Write the Dockerfile
+        run: |
+          cat > "$RUNNER_TEMP/Dockerfile" <<'DOCKERFILE'
+          # --- PHP with the extensions the game needs (shared by the next two stages) ---
+          FROM php:8.4-apache AS php
+
+          RUN apt-get update \
+              && apt-get install -y --no-install-recommends libzip-dev libpng-dev libsqlite3-dev libpq-dev \
+              && docker-php-ext-install mysqli pdo_mysql pdo_sqlite pdo_pgsql gd \
+              && rm -rf /var/lib/apt/lists/*
+
+          # --- the Composer packages (this stage is thrown away; only vendor/ is kept) ---
+          FROM php AS vendor
+
+          RUN apt-get update \
+              && apt-get install -y --no-install-recommends git unzip \
+              && rm -rf /var/lib/apt/lists/*
+          COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+          WORKDIR /build
+          COPY composer.json composer.lock ./
+          # Exactly the versions in composer.lock, without the test-only packages.
+          RUN composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader --no-scripts
+
+          # --- the game ---
+          FROM php
+
+          COPY docker/php-prod.ini /usr/local/etc/php/conf.d/zz-prod.ini
+          COPY --from=vendor /build/vendor /var/www/vendor
+          COPY app /var/www/html
+
+          # Places the site writes at run time: the game-content cache, Twig's
+          # compiled templates and PHP's error log (docker/php-prod.ini points it
+          # at /var/log/apache2, which the base image doesn't have).
+          RUN mkdir -p /var/www/html/include/cache /var/www/twig-cache /var/log/apache2 \
+              && touch /var/log/apache2/php_errors.log \
+              && chown -R www-data:www-data /var/www/html/include/cache /var/www/twig-cache /var/log/apache2/php_errors.log
+          ENV TWIG_CACHE=/var/www/twig-cache
+          DOCKERFILE
+
+      - uses: docker/setup-buildx-action@v4
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Name the image
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=staging,enable=${{ github.event_name == 'workflow_dispatch' }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ${{ runner.temp }}/Dockerfile
+          platforms: linux/amd64
+          pull: true
+          no-cache: true
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # The failure this guards against: an image with no game in it.
+      - name: Check what was pushed
+        run: |
+          image="$IMAGE:${{ steps.meta.outputs.version }}"
+          docker pull "$image"
+          docker run --rm --entrypoint test "$image" -f /var/www/html/index.php
+          docker run --rm --entrypoint test "$image" -f /var/www/vendor/autoload.php
+          php_version=$(docker run --rm --entrypoint php "$image" -r 'echo PHP_VERSION;')
+          echo "Pushed $image with PHP $php_version." | tee -a "$GITHUB_STEP_SUMMARY"

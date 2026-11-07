@@ -49,6 +49,14 @@ with it:
 utils/create_account.sh --username=you --email=you@example.com --admin
 ```
 
+That wrapper needs this project folder and Docker Compose. On a deployed
+game (an image on a NAS, say) there is no project folder: run the script
+it wraps directly, in the web container's shell:
+
+```
+cd /var/www/html && php admin/create_account.php --username=you --email=you@example.com --admin
+```
+
 It asks for the password twice (or reads it from standard input with
 `--password-stdin`). Leave out `--admin` for a plain player account, or give
 `--rights=SPECTATE_FIGHTS,EDIT_ITEM` for particular rights. Other players can
@@ -97,3 +105,11 @@ Run a DB query
 ```bash
 echo 'select * from team_members;'|docker compose exec -T db mysql -uroot -p$DB_PASS dse
 ```
+
+## Running the published image
+
+`compose.deploy.yml` runs the image from `ghcr.io/wilminator/dragon-star-rpg-engine`
+(built by `.github/workflows/image.yml`) on any Docker host, with no build and
+no project folder. Its header lists the settings and the four steps: a `.env`
+file, the two encryption key files, `docker compose -f compose.deploy.yml up -d`,
+then the first admin as described under "First run".
