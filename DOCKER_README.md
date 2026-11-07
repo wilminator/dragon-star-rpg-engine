@@ -49,6 +49,14 @@ with it:
 utils/create_account.sh --username=you --email=you@example.com --admin
 ```
 
+That wrapper needs this project folder and Docker Compose. On a deployed
+game (an image on a NAS, say) there is no project folder: run the script
+it wraps directly, in the web container's shell:
+
+```
+cd /var/www/html && php admin/create_account.php --username=you --email=you@example.com --admin
+```
+
 It asks for the password twice (or reads it from standard input with
 `--password-stdin`). Leave out `--admin` for a plain player account, or give
 `--rights=SPECTATE_FIGHTS,EDIT_ITEM` for particular rights. Other players can
